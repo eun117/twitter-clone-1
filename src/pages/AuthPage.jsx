@@ -1,31 +1,39 @@
-import axios from "axios";
-import { useEffect, useState } from "react";
+import {
+  GoogleAuthProvider,
+  createUserWithEmailAndPassword,
+  getAuth,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+} from "firebase/auth";
+import { useContext, useState } from "react";
 import { Button, Col, Form, Image, Modal, Row } from "react-bootstrap";
+import { AuthContext } from "../components/AuthProvider";
 import { useNavigate } from "react-router-dom";
-import useLocalStorage from "use-local-storage";
 
 export default function AuthPage() {
   const loginImage = "https://sig1.co/img-twitter-1";
-  const url =
-    "https://87d8ee49-3e0d-44a1-b2e7-6fa2ae6cf8f7-00-1dqck4pj8zieq.sisko.replit.dev";
   // values: null (no modal show), "login", "signup"
   const [modalShow, setModalShow] = useState(null);
   const handleShowSignUp = () => setModalShow("signup");
   const handleShowLogin = () => setModalShow("login");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [authToken, setAuthToken] = useLocalStorage("authToken", "");
+  const auth = getAuth();
   const navigate = useNavigate();
+  const { currentUser } = useContext(AuthContext);
+  const provider = new GoogleAuthProvider();
 
-  useEffect(() => {
-    if (authToken) navigate("/profile");
-  }, [authToken, navigate]);
+  if (currentUser) navigate("/profile");
 
   const handleSignUp = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post(`${url}/signup`, { username, password });
-      console.log(res.data);
+      const res = await createUserWithEmailAndPassword(
+        auth,
+        username,
+        password
+      );
+      console.log(res.user);
     } catch (error) {
       console.error(error);
     }
@@ -33,13 +41,15 @@ export default function AuthPage() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post(`${url}/login`, { username, password });
-      // res.data is not empty and auth is true, and token is not empty
-      if (res.data && res.data.auth === true && res.data.token) {
-        setAuthToken(res.data.token);
-        console.log("login was succesful, token saved");
-      }
-      console.log(res.data);
+      await signInWithEmailAndPassword(auth, username, password);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  const handleGoogleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      await signInWithPopup(auth, provider);
     } catch (error) {
       console.error(error);
     }
@@ -65,7 +75,11 @@ export default function AuthPage() {
           Join Twitter today.
         </h2>
         <Col sm={5} className="d-grid gap-2">
-          <Button className="rounded-pill" variant="outline-dark">
+          <Button
+            className="rounded-pill"
+            variant="outline-dark"
+            onClick={handleGoogleLogin}
+          >
             <i className="bi bi-google"></i> Sign up with Google
           </Button>
           <Button className="rounded-pill" variant="outline-dark">

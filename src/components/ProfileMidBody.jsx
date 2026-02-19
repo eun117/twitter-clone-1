@@ -2,11 +2,15 @@ import { jwtDecode } from "jwt-decode";
 import { useEffect, useState } from "react";
 import { Button, Col, Image, Nav, Row } from "react-bootstrap";
 import ProfilePostCard from "./ProfilePostCard";
+import { useContext } from "react";
+import { AuthContext } from "../components/AuthProvider";
+
 
 export default function ProfileMidBody() {
   const [posts, setPosts] = useState([]);
   const url = "https://pbs.twimg.com/profile_banners/83072625/1602845571/1500x500";
   const pic = "https://pbs.twimg.com/profile_images/1587405892437221376/h167Jlb2_400x400.jpg";
+  const { currentUser } = useContext(AuthContext);
 
   // Fetch posts based on user id
   const fetchPosts = (userId) => {
@@ -16,14 +20,21 @@ export default function ProfileMidBody() {
     .catch((error) => console.error("Error:", error));
   }
 
+  // useEffect(() => {
+  //   const token = localStorage.getItem("authToken");
+  //   if (token) {
+  //     const decodedToken = jwtDecode(token);
+  //     const userId = decodedToken.id;
+  //     fetchPosts(userId);
+  //   }
+  // }, []);
+
+
   useEffect(() => {
-    const token = localStorage.getItem("authToken");
-    if (token) {
-      const decodedToken = jwtDecode(token);
-      const userId = decodedToken.id;
-      fetchPosts(userId);
+    if (currentUser) {
+      fetchPosts(currentUser.uid);
     }
-  }, []);
+  }, [currentUser]);
 
 
   return (
