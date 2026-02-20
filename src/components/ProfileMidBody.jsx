@@ -1,4 +1,3 @@
-import { jwtDecode } from "jwt-decode";
 import { useEffect, useState } from "react";
 import { Button, Col, Image, Nav, Row } from "react-bootstrap";
 import ProfilePostCard from "./ProfilePostCard";
@@ -12,23 +11,12 @@ export default function ProfileMidBody() {
   const pic = "https://pbs.twimg.com/profile_images/1587405892437221376/h167Jlb2_400x400.jpg";
   const { currentUser } = useContext(AuthContext);
 
-  // Fetch posts based on user id
   const fetchPosts = (userId) => {
     fetch(`https://87d8ee49-3e0d-44a1-b2e7-6fa2ae6cf8f7-00-1dqck4pj8zieq.sisko.replit.dev/posts/user/${userId}`)
     .then((response) => response.json())
     .then((data) => setPosts(data))
     .catch((error) => console.error("Error:", error));
   }
-
-  // useEffect(() => {
-  //   const token = localStorage.getItem("authToken");
-  //   if (token) {
-  //     const decodedToken = jwtDecode(token);
-  //     const userId = decodedToken.id;
-  //     fetchPosts(userId);
-  //   }
-  // }, []);
-
 
   useEffect(() => {
     if (currentUser) {

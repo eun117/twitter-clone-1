@@ -8,21 +8,17 @@ export default function NewPostModal({ show, handleClose }) {
   const [postContent, setPostContent] = useState("");
 
   const handleSave = () => {
-    //Get stored JWT Token
     const token = localStorage.getItem("authToken");
 
-    //Decode the token to fetch user id
     const decode = jwtDecode(token);
-    const userId = decode.id // May change depending on how the server encode the token
+    const userId = decode.id
 
-    //Prepare data to be sent
     const data = {
-      title: "Post Title",  //Add functionality to set this properly
+      title: "Post Title",
       content: postContent,
       user_id: userId, 
     };
 
-    //Make your API call here
     axios
     .post("https://87d8ee49-3e0d-44a1-b2e7-6fa2ae6cf8f7-00-1dqck4pj8zieq.sisko.replit.dev/posts", data)
     .then((response) => {
