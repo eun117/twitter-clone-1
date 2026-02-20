@@ -8,7 +8,6 @@ export default function ProfileMidBody() {
   const url = "https://pbs.twimg.com/profile_banners/83072625/1602845571/1500x500";
   const pic = "https://pbs.twimg.com/profile_images/1587405892437221376/h167Jlb2_400x400.jpg";
 
-  // Fetch posts based on user id
   const fetchPosts = (userId) => {
     fetch(`https://87d8ee49-3e0d-44a1-b2e7-6fa2ae6cf8f7-00-1dqck4pj8zieq.sisko.replit.dev/posts/user/${userId}`)
     .then((response) => response.json())
