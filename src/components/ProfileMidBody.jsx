@@ -1,47 +1,24 @@
-import { jwtDecode } from "jwt-decode";
-import { useEffect, useState } from "react";
-import { Button, Col, Image, Nav, Row } from "react-bootstrap";
+import { useContext, useEffect } from "react";
+import { Button, Col, Image, Nav, Row, Spinner } from "react-bootstrap";
+import { AuthContext } from "./AuthProvider";
 import ProfilePostCard from "./ProfilePostCard";
-import { useContext } from "react";
-import { AuthContext } from "../components/AuthProvider";
-
 
 export default function ProfileMidBody() {
-  const [posts, setPosts] = useState([]);
   const url = "https://pbs.twimg.com/profile_banners/83072625/1602845571/1500x500";
   const pic = "https://pbs.twimg.com/profile_images/1587405892437221376/h167Jlb2_400x400.jpg";
-  const { currentUser } = useContext(AuthContext);
-
-  // Fetch posts based on user id
-  const fetchPosts = (userId) => {
-    fetch(`https://87d8ee49-3e0d-44a1-b2e7-6fa2ae6cf8f7-00-1dqck4pj8zieq.sisko.replit.dev/posts/user/${userId}`)
-    .then((response) => response.json())
-    .then((data) => setPosts(data))
-    .catch((error) => console.error("Error:", error));
-  }
-
-  // useEffect(() => {
-  //   const token = localStorage.getItem("authToken");
-  //   if (token) {
-  //     const decodedToken = jwtDecode(token);
-  //     const userId = decodedToken.id;
-  //     fetchPosts(userId);
-  //   }
-  // }, []);
-
+  const { currentUser, posts, postsLoading, fetchPostsByUser } = useContext(AuthContext);
 
   useEffect(() => {
     if (currentUser) {
-      fetchPosts(currentUser.uid);
+      fetchPostsByUser(currentUser.uid);
     }
-  }, [currentUser]);
-
+  }, [fetchPostsByUser, currentUser]);
 
   return (
     <Col sm={6} className="bg-light" style={{ border: "1px solid lightgrey" }}>
       <Image src={url} fluid />
       <br />
-      <Image 
+      <Image
         src={pic}
         roundedCircle
         style={{
@@ -52,7 +29,7 @@ export default function ProfileMidBody() {
           marginLeft: 15,
         }}
       />
-
+      
       <Row className="justify-content-end">
         <Col xs="auto">
           <Button className="rounded-pill mt-2" variant="outline-secondary">
@@ -74,7 +51,7 @@ export default function ProfileMidBody() {
       <p>
         <strong>271</strong> Following <strong>610</strong> Followers
       </p>
-
+      
       <Nav variant="underline" defaultActiveKey="/home" justify>
         <Nav.Item>
           <Nav.Link eventKey="/home">Tweets</Nav.Link>
@@ -92,8 +69,11 @@ export default function ProfileMidBody() {
           <Nav.Link eventKey="link-4">Likes</Nav.Link>
         </Nav.Item>
       </Nav>
-      {posts.length > 0 && posts.map((post) => (
-        <ProfilePostCard key={post.id} content={post.content} postId={post.id}/>
+      {postsLoading && (
+        <Spinner animation="border" className="ms-3 mt-3" variant="primary" />
+      )}
+      {posts.map((post) => (
+        <ProfilePostCard key={post.id} post={post} />
       ))}
     </Col>
   )

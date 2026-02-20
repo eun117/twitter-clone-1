@@ -1,24 +1,31 @@
-import { useEffect, useState } from "react";
+import { useContext } from "react";
 import { Button, Col, Image, Row } from "react-bootstrap";
+import { AuthContext } from "./AuthProvider";
 
-export default function ProfilePostCard({ content, postId }) {
-  const [likes, setLikes] = useState(0);
+export default function ProfilePostCard({ post }) {
+  const { content, id: postId, likes = [] } = post;
+  const { currentUser, likePost, removeLikeFromPost } = useContext(AuthContext);
+  const userId = currentUser?.uid;
+
+  const isLiked = likes.includes(userId);
+
   const pic = "https://pbs.twimg.com/profile_images/1587405892437221376/h167Jlb2_400x400.jpg";
 
-  useEffect(() => {
-    console.log(postId)
-    fetch(`https://87d8ee49-3e0d-44a1-b2e7-6fa2ae6cf8f7-00-1dqck4pj8zieq.sisko.replit.dev/likes/post/${postId}`)
-    .then((response) => response.json())
-    .then((data) => setLikes(data.length))
-    .catch((error) => console.error("Error:", error));
-  }, [postId]);
+  const handleLike = () => {
+    if (!userId) return;
+    if (isLiked) {
+      removeLikeFromPost(userId, postId);
+    } else {
+      likePost(userId, postId);
+    }
+  };
 
   return (
-    <Row 
-      className="p-3" 
-      style={{ 
-        borderTop: "1px solid #D3D3D3", 
-        borderBottom: "1px solid #D3D3D3" 
+    <Row
+      className="p-3"
+      style={{
+        borderTop: "1px solid #D3D3D3",
+        borderBottom: "1px solid #D3D3D3"
       }}
     >
       <Col sm={1}>
@@ -36,8 +43,13 @@ export default function ProfilePostCard({ content, postId }) {
           <Button variant="light">
             <i className="bi bi-repeat"></i>
           </Button>
-          <Button variant="light">
-            <i className="bi bi-heart"> {likes}</i>
+          <Button variant="light" onClick={handleLike}>
+            {isLiked ? (
+              <i className="bi bi-heart-fill text-danger"></i>
+            ) : (
+              <i className="bi bi-heart"></i>
+            )}
+            {likes.length}
           </Button>
           <Button variant="light">
             <i className="bi bi-graph-up"></i>
